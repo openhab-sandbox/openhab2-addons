@@ -148,34 +148,32 @@ public class FreeboxDiscoveryService extends AbstractDiscoveryService implements
     }
 
     private void discoverHosts() throws FreeboxException {
-        // List<VirtualMachine> vms = bridgeHandler.getApiManager().execute(new APIRequests.VirtualMachines());
+        List<VirtualMachine> vms = bridgeHandler.getApiManager().execute(new APIRequests.VirtualMachines());
         List<LanHost> lanHosts = bridgeHandler.getLanHosts();
 
-        /*
-         * List<LanHost> foundMacs = lanHosts.stream()
-         * .filter(host -> vms.stream().anyMatch(vm -> host.sameMac(vm.getMac()))).collect(Collectors.toList());
-         *
-         * List<LanHost> foundPlayer = lanHosts.stream().filter(host -> "freebox_player".equals(host.getHostType()))
-         * .collect(Collectors.toList());
-         */
-        lanHosts.stream()
-                ./* filter(i -> !foundPlayer.contains(i)).filter(i -> !foundMacs.contains(i)). */forEach(host -> {
-                    String mac = host.getMAC();
-                    if (mac != null) {
-                        String uid = mac.replaceAll("[^A-Za-z0-9_]", "_");
-                        ThingUID thingUID = new ThingUID(FREEBOX_THING_TYPE_HOST, bridgeUID, uid);
-                        logger.trace("Adding new Freebox Network Host {} to inbox", thingUID);
-                        DiscoveryResultBuilder builder = DiscoveryResultBuilder.create(thingUID)
-                                .withRepresentationProperty(Thing.PROPERTY_MAC_ADDRESS).withBridge(bridgeUID)
-                                .withProperty(Thing.PROPERTY_MAC_ADDRESS, mac)
-                                .withLabel(host.hasPrimaryName() ? host.getPrimaryName()
-                                        : String.format("Freebox Network Device %s", mac));
-                        if (host.hasVendorName()) {
-                            builder = builder.withProperty(Thing.PROPERTY_VENDOR, host.getVendorName());
-                        }
-                        thingDiscovered(builder.build());
-                    }
-                });
+        List<LanHost> foundMacs = lanHosts.stream()
+                .filter(host -> vms.stream().anyMatch(vm -> host.sameMac(vm.getMac()))).collect(Collectors.toList());
+
+        List<LanHost> foundPlayer = lanHosts.stream().filter(host -> "freebox_player".equals(host.getHostType()))
+                .collect(Collectors.toList());
+
+        lanHosts.stream().filter(i -> !foundPlayer.contains(i)).filter(i -> !foundMacs.contains(i)).forEach(host -> {
+            String mac = host.getMAC();
+            if (mac != null) {
+                String uid = mac.replaceAll("[^A-Za-z0-9_]", "_");
+                ThingUID thingUID = new ThingUID(FREEBOX_THING_TYPE_HOST, bridgeUID, uid);
+                logger.trace("Adding new Freebox Network Host {} to inbox", thingUID);
+                DiscoveryResultBuilder builder = DiscoveryResultBuilder.create(thingUID)
+                        .withRepresentationProperty(Thing.PROPERTY_MAC_ADDRESS).withBridge(bridgeUID)
+                        .withProperty(Thing.PROPERTY_MAC_ADDRESS, mac)
+                        .withLabel(host.hasPrimaryName() ? host.getPrimaryName()
+                                : String.format("Freebox Network Device %s", mac));
+                if (host.hasVendorName()) {
+                    builder = builder.withProperty(Thing.PROPERTY_VENDOR, host.getVendorName());
+                }
+                thingDiscovered(builder.build());
+            }
+        });
 
     }
 
