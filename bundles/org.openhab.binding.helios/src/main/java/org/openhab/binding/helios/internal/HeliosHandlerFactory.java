@@ -47,6 +47,7 @@ public class HeliosHandlerFactory extends BaseThingHandlerFactory {
 
     @Override
     protected ThingHandler createHandler(Thing thing) {
+
         ThingTypeUID thingTypeUID = thing.getThingTypeUID();
 
         if (thingTypeUID.equals(HELIOS_VARIO_IP_2_7_TYPE)) {

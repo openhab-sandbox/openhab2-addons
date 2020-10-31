@@ -43,6 +43,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 
+import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.openhab.binding.helios.internal.ws.rest.RESTError;
 import org.openhab.binding.helios.internal.ws.rest.RESTEvent;
 import org.openhab.binding.helios.internal.ws.rest.RESTPort;
@@ -170,7 +171,11 @@ public class HeliosHandler221 extends BaseThingHandler {
                 logger.error("An exception occurred while initialising the SSL context : '{}'", e1.getMessage(), e1);
             }
 
-            heliosClient = ClientBuilder.newBuilder().sslContext(sslContext).hostnameVerifier(new HostnameVerifier() {
+            ClientBuilder builder = new JerseyClientBuilder();
+
+            heliosClient = builder.sslContext(sslContext).hostnameVerifier(new HostnameVerifier() {
+                // heliosClient = ClientBuilder.newBuilder().sslContext(sslContext).hostnameVerifier(new
+                // HostnameVerifier() {
                 @Override
                 public boolean verify(String hostname, javax.net.ssl.SSLSession sslSession) {
                     return true;
